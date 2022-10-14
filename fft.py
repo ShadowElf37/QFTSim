@@ -1,14 +1,31 @@
-from scipy.fft import fftn as spfft, ifftn as spifft
-from scipy.spatial.distance import minkowski
+from scipy.fft import fftn as spfft, ifftn as spifft, fft as spfft1, ifft as spifft1
+import scipy as sp
 import numpy as np
+from scipy.interpolate import interpn
+import threading
+from time import sleep
 
 def lorentz_fft(data: np.ndarray):
-    return spfft(spifft(data, axes=(0,)), axes=range(1, data.ndim))
+    return spifft(spfft1(data, axis=0), axes=range(1, data.ndim))
 def lorentz_ifft(data: np.ndarray):
-    return spifft(spfft(data, axes=(0,)), axes=range(1, data.ndim))
+    return spfft(spifft1(data, axis=0), axes=range(1, data.ndim))
+
+
+def p(s):
+    while True:
+        print(I, '/', s)
+        sleep(1)
+
+I = 0
 
 def propagate(current: np.ndarray):
-    divk2 = np.ones_like(current)
-    for (point,_) in np.ndenumerate(divk2):
-        divk2[point] /= np.clip(point[0]**2 - sum(point[i]**2 for i in range(len(point)-1)), 0.1, None)
-    return lorentz_ifft(np.multiply(lorentz_fft(current), divk2))
+    global I
+    print('Interpolating current...')
+
+    for (point,_) in np.ndenumerate(current):
+        current[point] /= point[0]**2 - np.dot(point[1:], point[1:])
+    current = lorentz_fft(current)
+    print('Setting up divk2...')
+    print('Propagating...')
+    return lorentz_ifft(np.nan_to_num(current, nan=0., posinf=10000, neginf=-10000))
+    return field
