@@ -4,9 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 pic= Image.open("9nsgatf9wga81.PNG").convert('RGB')
+pic= Image.open("mal2.jpg").convert('RGB')
 
 print(np.array(pic.getdata()).shape)
-pix = np.array(pic.getdata()).reshape(pic.size[0], pic.size[1], 3)
+pix = np.array(pic.getdata()).reshape(pic.size[1], pic.size[0], 3)
 
 fig, (default, p1, p2, p3) = plt.subplots(4,4)
 
@@ -65,8 +66,6 @@ def compress(img, size):
 
     return f_red.shape, r,g,b
 
-print(compress(pix, 10))
-
 def decompress(shape, r, g, b):
     reds = np.zeros(shape, dtype=precision)
     blues = np.zeros(shape, dtype=precision)
@@ -87,8 +86,6 @@ def decompress(shape, r, g, b):
 
     return c_pix, c_red, c_green, c_blue
 
-
-c_pix, c_red, c_green, c_blue = decompress(*compress(pix, 1000))
 
 for i,p in enumerate((p1, p2, p3)):
     c_pix, c_red, c_green, c_blue = decompress(*compress(pix, 10**(i+2)))
