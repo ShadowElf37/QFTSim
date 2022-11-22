@@ -1,6 +1,6 @@
 import numpy as np
 import scipy as sp
-import fft
+import propagators
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -20,8 +20,8 @@ field[0] = np.exp(-(X-20)**2)
 
 res = 0.1
 
-field = fft.propagate(field, CENTER, resolution=res)
-field += 0.5*fft.propagate(field**2, CENTER, resolution=res)
+field = propagators.propagate(field, CENTER, resolution=res)
+field += 0.5 * propagators.propagate(field ** 2, CENTER, resolution=res)
 
 
 real = np.abs(field)**2

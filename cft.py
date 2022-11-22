@@ -36,21 +36,22 @@ class Transformer:
     def cft_1d(self, x: np.ndarray, axis: int):
         delta = self.delta[axis]
         m = self.m[axis]
-        transform = self.frft(np.array([x[j] * exp(ipi * j * m * delta) for j in range(m)]), m, delta)
+        transform = self.frft(np.array([x[j] * exp(ipi * j * m * delta) for j in range(m)]), m, delta, axis)
         return self.beta[axis] * np.array([exp(ipi * (k - m / 2) * m * delta) * transform[k] for k in range(m)])
     def icft_1d(self, x: np.ndarray, axis: int):
         delta = -self.delta[axis]
         m = self.m[axis]
-        transform = self.ifrft(np.array([x[j] * exp(ipi * j * m * delta) for j in range(m)]), m, delta)
+        transform = self.ifrft(np.array([x[j] * exp(ipi * j * m * delta) for j in range(m)]), m, delta, axis)
         return self.beta[axis] * np.array([exp(ipi * (k - m / 2) * m * delta) * transform[k] for k in range(m)])
 
-    def frft(self, x: np.ndarray, m: int, alpha: float):
+    def frft(self, x: np.ndarray, m: int, alpha: float, axis:int):
         y = np.concatenate((np.array([x[j]*exp(-ipi*j**2*alpha) for j in range(m)]), np.zeros(m)))
-        transform = ifft(np.multiply(fft(y),fft(self.z[m])))
+        #print(y.shape, self.z[m][axis])
+        transform = ifft(np.multiply(fft(y),fft(self.z[m][:,axis])))
         return np.array([exp(-ipi*k**2*alpha) * transform[k] for k in range(m)])
-    def ifrft(self, x: np.ndarray, m: int, alpha: float):
+    def ifrft(self, x: np.ndarray, m: int, alpha: float, axis:int):
         y = np.concatenate((np.array([x[j]*exp(-ipi*j**2*alpha) for j in range(m)]), np.zeros(m)))
-        transform = ifft(np.multiply(fft(y),fft(self.iz[m])))
+        transform = ifft(np.multiply(fft(y),fft(self.iz[m][:,axis])))
         return np.array([exp(-ipi*k**2*alpha) * transform[k] for k in range(m)])
 
     def cft(self, *axes):
@@ -62,7 +63,14 @@ class Transformer:
         for axis in axes:
             print('Doing inverse CFT on axis', axis)
             self.data = np.apply_along_axis(self.icft_1d, axis, self.data, axis)
+        self.data = self.data / (2 * np.pi)
         return self
+
+
+def cft(data, axes=(0,1), intervals=(1,1)):
+    return Transformer(data, intervals).cft(*axes).data
+def icft(data, axes, intervals):
+    return Transformer(data, intervals).icft(*axes).data
 
 
 if __name__ == "__main__":
@@ -74,7 +82,7 @@ if __name__ == "__main__":
     print(X)
     y1 = exp(-X / 1000) / np.sqrt(2 * pi)
 
-    y2 = np.abs(Transformer(y1, data_interval=1/sqrt(1000)).cft(0).cft(1).data)
+    y2 = np.abs(Transformer(y1, data_intervals=1/sqrt(1000)).cft(0).cft(1).data)
 
     plt.imshow(y2, origin='lower', interpolation='bilinear')#, extent=[-XDIM/2, XDIM/2, -YDIM/2, YDIM/2])
     plt.colorbar()
