@@ -8,20 +8,22 @@ from random import randint
 
 # box h - Lh^2 - J = 0
 
-TDIM = 100
+TDIM = 50
 XDIM = 50
 YDIM = 50
 
 CENTER = np.array((TDIM//2, XDIM//2, YDIM//2))
 
-J = 1
+J = 10000
 field0 = np.zeros((TDIM, XDIM, YDIM), np.complex64)
 
 X = np.arange(0, XDIM)
 Y = np.arange(0, YDIM)
 X,Y = np.meshgrid(X, Y)
 #T = np.arange(0, TDIM)
-field0[0] = sum(np.exp(-((X-randint(0, 50))**2/10 + (Y-randint(0, 50))**2/10)) for _ in range(5))
+#field0[:, XDIM//2, :] = 1
+#field0[0] = sum(np.exp(-((X-randint(0, 50))**2/10 + (Y-randint(0, 50))**2/10)) for _ in range(5))*J
+field0[:, randint(0, XDIM), randint(0, YDIM)] = J
 init = field0[0].copy()
 #field0[1] = np.exp(-(X-21)**2)
 
@@ -41,11 +43,11 @@ rotation_radius = 10
 #plt.imshow(np.abs(fieldJ[20]))
 #plt.show()
 
-res = 1/pi**2
+res = 1/(pi)**2
 # I have no idea why the resolution needs to be this
 
 field0 = propagators.sg_propagate(field0, CENTER, resolution=res)
-field = field0 + 0.5*propagators.sg_propagate(field0**2, CENTER, resolution=res)
+field = field0#+ 0.5*propagators.sg_propagate(field0**2, CENTER, resolution=res)
 
 
 real = np.abs(field)**2
@@ -59,6 +61,7 @@ fig, (ax1, ax2, ax3) = plt.subplots(1,3)
 image = ax1.imshow(real[0], origin='lower')#, interpolation='bilinear')#, extent=[-XDIM/2, XDIM/2, -YDIM/2, YDIM/2])
 static = ax2.imshow(np.abs(init), origin='lower')
 static1 = ax3.imshow(real[0], origin='lower')
+
 #fig.colorbar(image)
 
 def animate_func(i):

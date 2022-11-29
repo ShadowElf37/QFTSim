@@ -1,4 +1,4 @@
-from scipy.fft import fft, ifft
+from scipy.fft import fft, ifft, fft2, ifft2
 import numpy as np
 from time import sleep
 from cft import Transformer
@@ -22,6 +22,13 @@ def pt_lorentz_fft(data: np.ndarray, resolution=1/32):
     return Transformer(fft(data, axis=0), data_intervals=(resolution,)*data.ndim).icft(*range(1, data.ndim)).data
 def pt_lorentz_ifft(data: np.ndarray, resolution=1/32):
     return Transformer(ifft(data, axis=0), data_intervals=(resolution,)*data.ndim).cft(*range(1, data.ndim)).data
+
+def ptx_lorentz_fft(data: np.ndarray, resolution=1/32):
+    """Periodic time"""
+    return Transformer(ifft(fft(data, axis=0), axis=1), data_intervals=(resolution,)*data.ndim).icft(*range(2, data.ndim)).data
+def ptx_lorentz_ifft(data: np.ndarray, resolution=1/32):
+    return Transformer(fft(ifft(data, axis=0), axis=1), data_intervals=(resolution,)*data.ndim).cft(*range(2, data.ndim)).data
+
 """
 def lorentz_fft(data: np.ndarray, resolution=1):
     return Transformer(data, data_interval=resolution).cft(0).icft(*range(1, data.ndim)).data
