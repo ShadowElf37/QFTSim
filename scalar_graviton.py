@@ -14,7 +14,7 @@ YDIM = 50
 
 CENTER = np.array((TDIM//2, XDIM//2, YDIM//2))
 
-J = 10000
+J = 1000000
 field0 = np.zeros((TDIM, XDIM, YDIM), np.complex64)
 
 X = np.arange(0, XDIM)
@@ -23,10 +23,12 @@ X,Y = np.meshgrid(X, Y)
 #T = np.arange(0, TDIM)
 #field0[:, XDIM//2, :] = 1
 #field0[0] = sum(np.exp(-((X-randint(0, 50))**2/10 + (Y-randint(0, 50))**2/10)) for _ in range(5))*J
-field0[:, randint(0, XDIM), randint(0, YDIM)] = J
-init = field0[0].copy()
-#field0[1] = np.exp(-(X-21)**2)
+#for t in range(0, TDIM//2):
+#    field0[t, int(np.cos(t*2*pi/TDIM*2)*XDIM/2), 0] = J
 
+#field0[1] = np.exp(-(X-21)**2)
+field0[0, randint(10, XDIM-10), randint(10, YDIM-10)] = J
+init = field0[0].copy()
 #plt.imshow(np.abs(field0[0]))
 #plt.show()
 #exit()
